@@ -1,0 +1,27 @@
+name: Control-plane checks
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: control-plane/pyproject.toml
+      - name: Install dependencies
+        run: python -m pip install -e './control-plane[dev]'
+      - name: Lint
+        run: ruff check control-plane
+      - name: Formatting
+        run: ruff format --check control-plane
+      - name: Unit tests
+        run: pytest control-plane/tests -q
